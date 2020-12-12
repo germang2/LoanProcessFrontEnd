@@ -14,7 +14,8 @@ export default class Application extends Component {
             social_security: '',
             owner_name: '',
             email: '',
-            loan_decision: '',
+            loan_decision: 'Wainting for application',
+            color_decision: 'text.disabled',
             requested_amount_validation: {
                 errorMessage: '',
                 hasError: false
@@ -22,7 +23,8 @@ export default class Application extends Component {
             email_validation: {
                 errorMessage: '',
                 hasError: false
-            }
+            },
+            alertMessage: ''
         }
 
         this.onChange = this.onChange.bind(this);
@@ -80,9 +82,20 @@ export default class Application extends Component {
         }
     }
 
+    validateFields() {
+        let hasTaxId = this.state.tax_id !== "";
+        let hasHussinessName = this.state.bussiness_name !== "";
+        let hasSocialSecurity = this.state.social_security !== "";
+        let hasOwnerName = this.state.owner_name  !== "";
+        return (hasTaxId && hasHussinessName && hasSocialSecurity && hasOwnerName);
+    }
+
     submitForm() {
-        if (this.state.requested_amount_validation.hasError || isNaN(parseFloat(this.state.requested_amount))) {
+        if (this.state.requested_amount_validation.hasError || isNaN(parseFloat(this.state.requested_amount)) || !this.validateFields()) {
+            this.setState({alertMessage: 'Please fill all the fields'});
             return;
+        } else {
+            this.setState({alertMessage: ''});
         }
         let data = {
             amount: parseFloat(this.state.requested_amount)
@@ -97,9 +110,19 @@ export default class Application extends Component {
         }).then(response => {
             if (response.status === 200) {
                 response.json().then(json => {
-                    console.log(json)
                     let decision = json.decision
-                    this.setState({loan_decision: decision})
+                    let color_decision = ''
+                    if (decision === 'APPROVED') {
+                        color_decision = 'success.main'
+                    } else if (decision === 'UNDECIDED') {
+                        color_decision = 'warning.main'
+                    } else if (decision === 'DECLINE') {
+                        color_decision = 'secondary.main'
+                    }
+                    this.setState({
+                        loan_decision: decision,
+                        color_decision: color_decision
+                    })
                 }, (error) => {
                     console.log(error);
                 });
@@ -115,6 +138,8 @@ export default class Application extends Component {
                 loanDecision={this.state.loan_decision}
                 requested_amount_validation={this.state.requested_amount_validation}
                 email_validation={this.state.email_validation}
+                color_decision={this.state.color_decision}
+                alert={this.state.alertMessage}
             >
             </ApplicationForm>
         </div>)
