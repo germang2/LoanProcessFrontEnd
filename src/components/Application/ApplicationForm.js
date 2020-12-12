@@ -44,13 +44,12 @@ export default function ApplicationForm(props) {
             onChange={props.onChange}
         />
         <TextField
-            error={false}
+            error={props.requested_amount_validation.hasError}
             id="requested-amount-input"
             name="requested_amount"
             label="Amount"
             defaultValue=""
-            helperText=""
-            type="Number"
+            helperText={props.requested_amount_validation.errorMessage}
             required
             onChange={props.onChange}
         />
@@ -77,12 +76,12 @@ export default function ApplicationForm(props) {
             onChange={props.onChange}
         />
         <TextField
-            error={false}
+            error={props.email_validation.hasError}
             id="email-input"
             name="email"
             label="Email"
             defaultValue=""
-            helperText=""
+            helperText={props.email_validation.errorMessage}
             type="email"
             required
             onChange={props.onChange}
